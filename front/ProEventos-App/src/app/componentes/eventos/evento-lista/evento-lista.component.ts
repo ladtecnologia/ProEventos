@@ -18,6 +18,7 @@ export class EventoListaComponent implements OnInit {
   public eventos: Evento[] = [];
   public eventosFiltrados : Evento[] = [];
   public exibirImagem = true;
+  public eventoId = 0;
 
   private _filtroLista = '';
 
@@ -56,20 +57,23 @@ export class EventoListaComponent implements OnInit {
 
   public getEventos(): void {
     this.eventoService.getEventos().subscribe({
-        next: (eventos: Evento[]) => {
-          this.eventos = eventos;
-          this.eventosFiltrados = this.eventos;
-        },
-        error: (error: any) => {
-          this.spinner.hide();
-          this.toastr.error('Eventos não carregados !', 'Erro');
-        },
-        complete: () => this.spinner.hide()
-      })
+      next: (eventos: Evento[]) => {
+        this.eventos = eventos;
+        this.eventosFiltrados = this.eventos;
+      },
+      error: (error: any) => {
+        this.spinner.hide();
+        this.toastr.error('Eventos não carregados !', 'Erro');
+      },
+      complete: () => {
+        this.spinner.hide();
+      }
+    })
   }
 
-  //
-  public openModal(template: TemplateRef<any>): void {
+  public openModal(event: any, template: TemplateRef<any>, eventoId: number): void {
+    event.stopPropagation();
+    this.eventoId = eventoId;
     this.modalRef = this.modalService.show(template);
   }
 

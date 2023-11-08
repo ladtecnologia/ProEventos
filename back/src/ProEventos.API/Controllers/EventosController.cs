@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProEventos.Domain;
 using ProEventos.Application.Contratos;
 using ProEventos.Application.Dtos;
 
