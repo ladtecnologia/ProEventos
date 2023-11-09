@@ -48,27 +48,24 @@ export class EventoListaComponent implements OnInit {
 
  public ngOnInit(): void {
     this.spinner.show();
-    this.getEventos();
+    this.carregarEventos();
   }
 
   public alterarImagem(){
     this.exibirImagem = !this.exibirImagem;
   }
 
-  public getEventos(): void {
+  public carregarEventos(): void {
     this.eventoService.getEventos().subscribe({
       next: (eventos: Evento[]) => {
         this.eventos = eventos;
         this.eventosFiltrados = this.eventos;
       },
       error: (error: any) => {
-        this.spinner.hide();
+        console.error(error);
         this.toastr.error('Eventos não carregados !', 'Erro');
-      },
-      complete: () => {
-        this.spinner.hide();
       }
-    })
+    }).add(() => this.spinner.hide());
   }
 
   public openModal(event: any, template: TemplateRef<any>, eventoId: number): void {
@@ -78,8 +75,18 @@ export class EventoListaComponent implements OnInit {
   }
 
   public confirm(): void {
-    this.modalRef?.hide();
-    this.toastr.success('Evento excluído !', 'Sucesso');
+    this.modalRef.hide();
+    this.spinner.show();
+    this.eventoService.deleteEvento(this.eventoId).subscribe({
+      next: (result: any) => {
+          this.toastr.success('Evento excluído !', 'Sucesso');
+          this.carregarEventos();
+      },
+      error: (error: any) => {
+        console.error(error);
+        this.toastr.error(`Evento ${this.eventoId} não excluído !`, 'Erro');
+      }
+    }).add(() => this.spinner.hide());
   }
 
   public decline(): void {

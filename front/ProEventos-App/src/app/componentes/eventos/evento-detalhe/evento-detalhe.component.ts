@@ -9,7 +9,6 @@ import { ToastrService } from 'ngx-toastr';
 import { EventoService } from '@app/services/evento.service';
 import { Evento } from '@app/models/Evento';
 
-
 @Component({
   selector: 'app-evento-detalhe',
   templateUrl: './evento-detalhe.component.html',
@@ -19,6 +18,7 @@ export class EventoDetalheComponent implements OnInit {
 
   evento = {} as Evento;
   form: FormGroup;
+  estadoSalvar = 'post';
 
   get f(): any {
     return this.form.controls;
@@ -49,20 +49,17 @@ export class EventoDetalheComponent implements OnInit {
     const eventoIdParam = this.router.snapshot.paramMap.get('id');
     if (eventoIdParam != null) {
       this.spinner.show();
+      this.estadoSalvar = 'put';
       this.eventoService.getEventoById(+eventoIdParam).subscribe({
         next: (evento: Evento) => {
           this.evento = {...evento };
           this.form.patchValue(this.evento);
         },
         error: (error: any) => {
-          this.spinner.hide();
-          this.toastr.error('Evento não carregado !', 'Erro');
           console.error(error);
-        },
-        complete: () => {
-          this.spinner.hide();
+          this.toastr.error('Evento não carregado !', 'Erro');
         }
-      })
+      }).add(() => this.spinner.hide());
     }
   }
 
@@ -90,4 +87,28 @@ export class EventoDetalheComponent implements OnInit {
   public cssValidator(campoForm: FormControl): any {
     return {'is-invalid' : campoForm.errors && campoForm.touched};
   }
+
+  public salvarAlteracao(): void {
+    if (this.form.valid){
+      this.spinner.show();
+      if (this.estadoSalvar == 'post') {
+        //POST
+        this.evento = { ...this.form.value}; }
+      else {
+        //PUT
+        this.evento = {id: this.evento.id, ...this.form.value};}
+
+      this.eventoService[this.estadoSalvar](this.evento).subscribe({
+        next: (evento: Evento) => {
+          this.toastr.success('Evento salvo com sucesso !', 'Sucesso');
+        },
+        error: (error: any) => {
+          console.error(error);
+          this.toastr.error('Evento não foi salvo !', 'Erro');
+        }
+      }).add(() => this.spinner.hide());
+
+    }
+  }
+
 }
