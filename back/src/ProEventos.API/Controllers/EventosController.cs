@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProEventos.API.Extensions;
 using ProEventos.Application.Contratos;
 using ProEventos.Application.Dtos;
 using ProEventos.Persistence.Models;
@@ -23,6 +24,9 @@ namespace ProEventos.API.Controllers
             {
                 var eventos = await _eventoService.GetAllEventosAsync(pageParams, true);
                 if(eventos == null) return NoContent();
+
+                Response.AddPagination(eventos.TotalCount, eventos.CurrentPage, eventos.PageSize, eventos.TotalPages);
+
                 return Ok(eventos);
             }
             catch (Exception ex)
