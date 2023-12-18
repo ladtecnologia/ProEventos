@@ -8,6 +8,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { defineLocale } from 'ngx-bootstrap/chronos';
@@ -77,7 +78,8 @@ defineLocale('pt-br', ptBrLocale);
         progressBar : true,
         progressAnimation : 'increasing'
       }),
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    PaginationModule.forRoot()
   ],
   providers: [
     EventoService

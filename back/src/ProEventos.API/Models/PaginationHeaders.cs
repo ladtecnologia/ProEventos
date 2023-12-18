@@ -8,11 +8,8 @@ namespace ProEventos.API.Models
     public class PaginationHeaders
     {
         public int TotalCount { get; set; }
-
         public int CurrentPage { get; set; }
-
         public int PageSize { get; set; }
-
         public int TotalPages { get; set; }
 
         public PaginationHeaders(int totalCount, int currentPage, int pageSize, int totalPages) 

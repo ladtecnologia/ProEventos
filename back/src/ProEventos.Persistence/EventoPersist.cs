@@ -28,7 +28,9 @@ namespace ProEventos.Persistence
                     .ThenInclude(pe => pe.Palestrante);
             }
             query = query.AsNoTracking().OrderBy(e => e.Id)
-                         .Where(e => e.Tema.ToLower().Contains(pageParams.Term.ToLower()));
+                .Where(e => (e.Tema.ToLower().Contains(pageParams.Term.ToLower())) ||
+                            (e.Local.ToLower().Contains(pageParams.Term.ToLower())) 
+                );
             return await PageList<Evento>.CreateAsync(query, pageParams.PageNumber, pageParams.pageSize);
         }
 
