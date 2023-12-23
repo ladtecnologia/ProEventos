@@ -20,9 +20,9 @@ export class EventoListaComponent implements OnInit {
   public eventos: Evento[] = [];
   public exibirImagem = true;
   public eventoId = 0;
+
+  public filtrarPor = '';
   public termoBuscaChanged: Subject<string> = new Subject<string>();
-
-
   public pagination = {} as Pagination;
 
   constructor(
@@ -33,39 +33,16 @@ export class EventoListaComponent implements OnInit {
     private router: Router) {}
 
  public ngOnInit(): void {
-    this.pagination = {totalCount:1, currentPage:1, pageSize:3, totalPages:1} as Pagination;
+    this.pagination = {totalCount:1, currentPage:1, pageSize:3} as Pagination;
     this.carregarEventos();
   }
 
-  public filtrarEventos(evt: any) : void {
-    if (this.termoBuscaChanged.observers.length == 0){
-      this.termoBuscaChanged.pipe(debounceTime(1000)).subscribe(
-        filtrarPor => {
-          this.spinner.show();
-          this.eventoService.getEventos(this.pagination.currentPage, this.pagination.pageSize, filtrarPor).subscribe({
-            next: (paginatedResult: PaginatedResult<Evento[]>) => {
-              this.eventos = paginatedResult.result;
-              this.pagination = paginatedResult.pagination;
-            },
-            error: (error: any) => {
-              console.error(error);
-              this.toastr.error('Eventos não carregados !', 'Erro');
-            },
-          }).add(() => this.spinner.hide());
-        }
-      )
-    }
-    this.termoBuscaChanged.next(evt.value);
-  }
-
-  public alterarImagem(){
-    this.exibirImagem = !this.exibirImagem;
-  }
-
   public carregarEventos(): void {
+    console.log('* carregar eventos ' + this.pagination.currentPage + '-' + this.filtrarPor);
     this.spinner.show();
     this.eventoService.getEventos(this.pagination.currentPage,
-                                  this.pagination.pageSize).subscribe({
+                                  this.pagination.pageSize,
+                                  this.filtrarPor).subscribe({
       next: (paginatedResult: PaginatedResult<Evento[]>) => {
         this.eventos = paginatedResult.result;
         this.pagination = paginatedResult.pagination;
@@ -75,6 +52,28 @@ export class EventoListaComponent implements OnInit {
         this.toastr.error('Eventos não carregados !', 'Erro');
       },
     } ).add(() => this.spinner.hide());
+  }
+
+  public filtrarEventos(evt: any) : void {
+    if (this.termoBuscaChanged.observers.length == 0){
+      this.termoBuscaChanged.pipe(debounceTime(1000)).subscribe({
+        next: (filtrarPor) => {
+          this.pagination.currentPage = 1;
+          this.filtrarPor = filtrarPor;
+          console.log('** filtrar eventos ' + this.pagination.currentPage + '-' + this.filtrarPor);
+          this.carregarEventos();
+        }
+      });
+    }
+    this.termoBuscaChanged.next(evt.value);
+  }
+
+  public pageChanged(event): void {
+    if (this.pagination.currentPage != event.page) {
+      console.log('* pageChanged ' + this.pagination.currentPage + '-' + event.page);
+      this.pagination.currentPage = event.page;
+      this.carregarEventos();
+    }
   }
 
   public openModal(event: any, template: TemplateRef<any>, eventoId: number): void {
@@ -107,9 +106,8 @@ export class EventoListaComponent implements OnInit {
     this.router.navigate([`eventos/detalhe/${id}`]);
   }
 
-  public pageChanged(event): void {
-    this.pagination.currentPage = event.page;
-    this.carregarEventos();
+  public alterarImagem(){
+    this.exibirImagem = !this.exibirImagem;
   }
 
 }
